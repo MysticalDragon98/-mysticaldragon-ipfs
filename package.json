@@ -1,6 +1,6 @@
 {
   "name": "@mysticaldragon/ipfs",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "types": "build/index.d.ts",
   "main": "build/index.js",
   "license": "MIT",
