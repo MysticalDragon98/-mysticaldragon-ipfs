@@ -1,4 +1,4 @@
-interface IPFSOptions {
+export interface IPFSOptions {
     dir: string;
 }
 export declare class IPFS {
@@ -9,4 +9,3 @@ export declare class IPFS {
     add(data: any): Promise<any>;
     get(hash: string): Promise<any>;
 }
-export {};
