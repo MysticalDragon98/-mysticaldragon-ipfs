@@ -1,6 +1,6 @@
 const Ipfs = require("ipfs");
 
-interface IPFSOptions {
+export interface IPFSOptions {
     dir: string;
 }
 
