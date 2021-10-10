@@ -1,0 +1,18 @@
+{
+  "name": "@mysticaldragon/ipfs",
+  "version": "1.0.0",
+  "types": "build/index.d.ts",
+  "main": "build/index.js",
+  "license": "MIT",
+  "repository": {
+    "type": "Github",
+    "url": "https://github.com/MysticalDragon98/-mysticaldragon-ipfs"
+  },
+  "dependencies": {
+    "ipfs": "^0.59.1"
+  },
+  "scripts": {
+    "run-example": "ts-node example",
+    "build": "tsc"
+  }
+}
