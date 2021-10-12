@@ -44,11 +44,17 @@ var __asyncValues = (this && this.__asyncValues) || function (o) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.IPFS = void 0;
+var http_1 = require("http");
 var Ipfs = require("ipfs");
 var IPFS = /** @class */ (function () {
     function IPFS(options) {
         this.options = options;
     }
+    IPFS.prototype.url = function (path, type) {
+        if (type)
+            type = "." + type;
+        return "http://" + this.options.gateway.host + ":" + this.options.gateway.port + "/ipfs/" + path + type;
+    };
     IPFS.prototype.init = function () {
         return __awaiter(this, void 0, void 0, function () {
             var _a;
@@ -59,17 +65,21 @@ var IPFS = /** @class */ (function () {
                         return [4 /*yield*/, Ipfs.create({ repo: this.options.dir })];
                     case 1:
                         _a.ipfs = _b.sent();
+                        return [4 /*yield*/, this.runExpress()];
+                    case 2:
+                        _b.sent();
                         return [2 /*return*/];
                 }
             });
         });
     };
-    IPFS.prototype.add = function (data) {
+    IPFS.prototype.add = function (data, raw) {
+        if (raw === void 0) { raw = false; }
         return __awaiter(this, void 0, void 0, function () {
             var path;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.ipfs.add(JSON.stringify(data))];
+                    case 0: return [4 /*yield*/, this.ipfs.add(raw ? data : JSON.stringify(data))];
                     case 1:
                         path = (_a.sent()).path;
                         return [2 /*return*/, path];
@@ -77,8 +87,9 @@ var IPFS = /** @class */ (function () {
             });
         });
     };
-    IPFS.prototype.get = function (hash) {
+    IPFS.prototype.get = function (hash, raw) {
         var e_1, _a;
+        if (raw === void 0) { raw = false; }
         return __awaiter(this, void 0, void 0, function () {
             var stream, data, stream_1, stream_1_1, chunk, e_1_1;
             return __generator(this, function (_b) {
@@ -115,8 +126,51 @@ var IPFS = /** @class */ (function () {
                         if (e_1) throw e_1.error;
                         return [7 /*endfinally*/];
                     case 11: return [7 /*endfinally*/];
-                    case 12: return [2 /*return*/, JSON.parse(data)];
+                    case 12: return [2 /*return*/, raw ? data : JSON.parse(data)];
                 }
+            });
+        });
+    };
+    IPFS.prototype.runExpress = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var _a, host, port, app;
+            var _this = this;
+            return __generator(this, function (_b) {
+                _a = this.options.gateway, host = _a.host, port = _a.port;
+                app = http_1.createServer(function (rq, rs) { return __awaiter(_this, void 0, void 0, function () {
+                    var url, cid, _a, _b, exc_1;
+                    return __generator(this, function (_c) {
+                        switch (_c.label) {
+                            case 0:
+                                url = rq.url;
+                                if (!url || !url.startsWith("/ipfs/")) {
+                                    rs.statusCode = 404;
+                                    rs.end("Not Found.");
+                                    return [2 /*return*/];
+                                }
+                                _c.label = 1;
+                            case 1:
+                                _c.trys.push([1, 3, , 4]);
+                                cid = url.substring(6, url.includes(".") ? url.indexOf(".") : url.length);
+                                rs.statusCode = 200;
+                                _b = (_a = rs).end;
+                                return [4 /*yield*/, this.get(cid, true)];
+                            case 2:
+                                _b.apply(_a, [_c.sent()]);
+                                return [3 /*break*/, 4];
+                            case 3:
+                                exc_1 = _c.sent();
+                                rs.statusCode = 500;
+                                rs.end(exc_1.message);
+                                console.log(exc_1);
+                                return [3 /*break*/, 4];
+                            case 4: return [2 /*return*/];
+                        }
+                    });
+                }); });
+                return [2 /*return*/, new Promise(function (resolve) { return app.listen(port, function () {
+                        resolve();
+                    }); })];
             });
         });
     };
